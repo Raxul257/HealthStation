@@ -4,7 +4,6 @@ using Rocket.Unturned.Chat;
 using Rocket.Unturned.Player;
 using System;
 using System.Collections.Generic;
-using fr34kyn01535.Uconomy;
 using UnityEngine;
 using System.Linq;
 using SDG.Unturned;
@@ -65,13 +64,18 @@ namespace LuxarPL.HealthStation
                             return;
                         }
                     }
-                    if (s.Pay == true && Uconomy.Instance.Database.GetBalance(player.CSteamID.ToString()) < s.Cost)
+                    if (HealthStation.Instance.Configuration.Instance.UseUconomy)
                     {
-                        UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("yes_not_money"));
-                        return;
+                        if (s.Pay == true && fr34kyn01535.Uconomy.Uconomy.Instance.Database.GetBalance(player.CSteamID.ToString()) < s.Cost)
+                        {
+                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("yes_not_money"));
+                            return;
+                        }
+                        if (s.Pay == true)
+                            fr34kyn01535.Uconomy.Uconomy.Instance.Database.IncreaseBalance(player.CSteamID.ToString(), s.Cost * -1);
                     }
-                    Uconomy.Instance.Database.IncreaseBalance(player.CSteamID.ToString(), s.Cost * -1);
                     player.Heal(100, true, true);
+                    player.Infection = 0;
                     if (HealthStation.Instance.cooldown.ContainsKey(player.CSteamID))
                         HealthStation.Instance.cooldown.Remove(player.CSteamID);
                     HealthStation.Instance.cooldown.Add(player.CSteamID, DateTime.Now.AddSeconds(HealthStation.Instance.Configuration.Instance.Cooldown));

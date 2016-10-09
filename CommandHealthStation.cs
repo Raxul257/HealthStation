@@ -57,37 +57,45 @@ namespace LuxarPL.HealthStation
                     {
                         if (Vector3.Distance(s.Position, player.Position) <= HealthStation.Instance.Configuration.Instance.StationRange * 2)
                         {
-                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_too_close"));
+                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_too_close"));
                             return;
                         }
                     }
                     if(command.Length == 2)
                     {
-                        decimal cost = 0;
-                        if(!decimal.TryParse(command[1], out cost))
+                        if (HealthStation.Instance.Configuration.Instance.UseUconomy)
                         {
-                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_wrong_cost"));
+                            decimal cost = 0;
+                            if (!decimal.TryParse(command[1], out cost))
+                            {
+                                UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_wrong_cost"));
+                                return;
+                            }
+                            Station s = new Station(true, player.Position.x, player.Position.y, player.Position.z, cost);
+                            HealthStation.Instance.stations.Add(s);
+                            HealthStation.Instance.Configuration.Instance.stations.Add(s);
+                            HealthStation.Instance.Configuration.Save();
+                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_added_pay", cost, HealthStation.Instance.stations.IndexOf(s)));
+                        }
+                        else
+                        {
+                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_uconomy_disabled"));
                             return;
                         }
-                        Station s = new Station(true, player.Position.x, player.Position.y, player.Position.z, cost);
-                        HealthStation.Instance.stations.Add(s);
-                        HealthStation.Instance.Configuration.Instance.stations.Add(s);
-                        HealthStation.Instance.Configuration.Save();
-                        UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_added_pay", cost, HealthStation.Instance.stations.IndexOf(s)));
                     }
                     else
                     {
                         Station s = new Station(false, player.Position.x, player.Position.y, player.Position.z);
                         HealthStation.Instance.stations.Add(s);
                         HealthStation.Instance.Configuration.Instance.stations.Add(s);
-                        UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_added", HealthStation.Instance.stations.IndexOf(s)));
+                        UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_added", HealthStation.Instance.stations.IndexOf(s)));
                     }
                 }
                 else if (command[0].ToLower() == "remove")
                 {
                     if(HealthStation.Instance.stations.Count == 0)
                     {
-                        UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_no_stations_exist"));
+                        UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_no_stations_exist"));
                         return;
                     }
                     if(command.Length == 2)
@@ -95,29 +103,29 @@ namespace LuxarPL.HealthStation
                         int index = 0;
                         if (!int.TryParse(command[1], out index))
                         {
-                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_wrong_index"));
+                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_wrong_index"));
                             return;
                         }
                         if(HealthStation.Instance.stations.Count - 1 < index)
                         {
-                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_wrong_index"));
+                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_wrong_index"));
                             return;
                         }
                         HealthStation.Instance.stations.RemoveAt(index);
                         HealthStation.Instance.Configuration.Instance.stations.RemoveAt(index);
                         HealthStation.Instance.Configuration.Save();
-                        UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_removed"));
+                        UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_removed"));
                         return;
                     }
                     foreach (Station s in HealthStation.Instance.stations)
                     {
                         if (Vector3.Distance(s.Position, player.Position) <= HealthStation.Instance.Configuration.Instance.StationRange)
                         {
-                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_removed"));
+                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_removed"));
                             return;
                         }
                     }
-                    UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_not_in"));
+                    UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_not_in"));
                 }
                 else if (command[0].ToLower() == "move")
                 {
@@ -126,12 +134,12 @@ namespace LuxarPL.HealthStation
                         int index = 0;
                         if (!int.TryParse(command[1], out index))
                         {
-                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_wrong_index"));
+                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_wrong_index"));
                             return;
                         }
                         if (HealthStation.Instance.stations.Count - 1 < index)
                         {
-                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_wrong_index"));
+                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_wrong_index"));
                             return;
                         }
                         HealthStation.Instance.stations[index].X = player.Position.x;
@@ -141,11 +149,11 @@ namespace LuxarPL.HealthStation
                         HealthStation.Instance.Configuration.Instance.stations[index].Y = player.Position.y;
                         HealthStation.Instance.Configuration.Instance.stations[index].Z = player.Position.z;
                         HealthStation.Instance.Configuration.Save();
-                        UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_moved"));
+                        UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_moved"));
                     }
                     else
                     {
-                        UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_wrong_index"));
+                        UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_wrong_index"));
                     }
                 }
                 else if (command[0].ToLower() == "index")
@@ -154,39 +162,39 @@ namespace LuxarPL.HealthStation
                     {
                         if (Vector3.Distance(HealthStation.Instance.stations[i].Position, player.Position) <= HealthStation.Instance.Configuration.Instance.StationRange)
                         {
-                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_index", i));
+                            UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_index", i));
                             return;
                         }
                     }
-                    UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_not_in"));
+                    UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_not_in"));
                 }
                 else if (command[0].ToLower() == "count")
                 {
-                    UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_count", HealthStation.Instance.stations.Count));
+                    UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_count", HealthStation.Instance.stations.Count));
                 }
                 else if (command[0].ToLower() == "tp")
                 {
                     int index = 0;
                     if (!int.TryParse(command[1], out index))
                     {
-                        UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_wrong_index"));
+                        UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_wrong_index"));
                         return;
                     }
                     if (HealthStation.Instance.stations.Count - 1 < index)
                     {
-                        UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_wrong_index"));
+                        UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_wrong_index"));
                         return;
                     }
                     player.Teleport(HealthStation.Instance.stations[index].Position, player.Rotation);
                 }
                 else
                 {
-                    UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_usage"));
+                    UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_usage"));
                 }
             }
             else
             { 
-                UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hw_usage"));
+                UnturnedChat.Say(player, HealthStation.Instance.Translations.Instance.Translate("hs_usage"));
             }
         }
     }

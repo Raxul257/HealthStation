@@ -8,7 +8,6 @@ using Rocket.Unturned.Plugins;
 using SDG;
 using Steamworks;
 using Rocket.API;
-using Rocket.Core.Logging;
 using Rocket.Unturned.Chat;
 using System;
 using System.Collections.Generic;
@@ -16,6 +15,7 @@ using SDG.Unturned;
 using fr34kyn01535.Uconomy;
 using System.Timers;
 using UnityEngine;
+using Logger = Rocket.Core.Logging.Logger;
 
 namespace LuxarPL.HealthStation
 {
@@ -34,9 +34,20 @@ namespace LuxarPL.HealthStation
             {
                 stations.Add(new Station(s.Pay, s.X, s.Y, s.Z, s.Cost));
             }
-            //UnturnedPlayerEvents.OnPlayerUpdateLife += UnturnedPlayerEvents_OnPlayerUpdateLife;
+            Logger.LogWarning("Health Station by LuxarPL");
+            Logger.LogWarning("");
+            Logger.LogWarning("Station range: " + Configuration.Instance.StationRange + "m");
+            Logger.LogWarning("Cooldown: " + Configuration.Instance.Cooldown + " seconds");
+            Logger.LogWarning("Using Uconomy: " + Configuration.Instance.UseUconomy);          
         }
 
+        protected override void Unload()
+        {
+            UnturnedPlayerEvents.OnPlayerUpdatePosition -= UnturnedPlayerEvents_OnPlayerUpdatePosition;
+            stations.Clear();
+            inStation.Clear();
+            cooldown.Clear();
+        }
         private void UnturnedPlayerEvents_OnPlayerUpdatePosition(UnturnedPlayer player, Vector3 position)
         {
             bool notIn = true;
@@ -46,7 +57,7 @@ namespace LuxarPL.HealthStation
                 {
                     notIn = false;
                     if (inStation.Contains(player.CSteamID)) break;
-                    if (s.Pay)
+                    if (s.Pay && Configuration.Instance.UseUconomy)
                     {
                         UnturnedChat.Say(player, Instance.Translations.Instance.Translate("station_welcome_pay", s.Cost, Uconomy.Instance.Configuration.Instance.MoneyName));
                     }

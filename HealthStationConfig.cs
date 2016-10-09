@@ -11,6 +11,7 @@ namespace LuxarPL.HealthStation
     {
         public ulong StationRange;
         public double Cooldown;
+        public bool UseUconomy;
 
         [XmlArrayItem("HealthStations")]
         [XmlArray(ElementName = "HealthStation")]
@@ -20,6 +21,7 @@ namespace LuxarPL.HealthStation
         {
             StationRange = 5;
             Cooldown = 120;
+            UseUconomy = true;
             stations = new List<Station> { };
         }
     }
