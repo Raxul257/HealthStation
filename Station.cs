@@ -1,47 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Rocket.API;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 using UnityEngine;
 
-namespace LuxarPL.HealthStation
+namespace Raxul257.HealthStation
 {
     public class Station
     {
-        [XmlAttribute("Pay_for_heal")]
-        public bool Pay;
+        [XmlAttribute]
+        public bool Paid;
 
-        [XmlAttribute("Cost")]
+        [XmlAttribute]
         public decimal Cost;
 
-        [XmlAttribute("X")]
+        [XmlAttribute]
         public float X;
-
-        [XmlAttribute("Y")]
+        [XmlAttribute]
         public float Y;
-
-        [XmlAttribute("Z")]
+        [XmlAttribute]
         public float Z;
 
-        public Vector3 Position
-        {
-            get { return new Vector3(X, Y, Z); }
-        }
+        public Vector3 Position => new Vector3(X, Y, Z);
 
-        public Station(bool pay, float x, float y, float z, decimal cost = 0)
+        public Station(Vector3 postion, bool paid = false, decimal cost = 0)
         {
-            Pay = pay;
+            Paid = paid;
             Cost = cost;
-            X = x;
-            Y = y;
-            Z = z;
+            X = postion.x;
+            Y = postion.y;
+            Z = postion.z;
         }
 
         public Station()
         {
-
         }
     }
 }
